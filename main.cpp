@@ -55,12 +55,14 @@ class Function {
     int nbins = h->GetNbinsX();
     std::vector<double> sqm;
     sqm.reserve(nbins);
-    for (int i = 0; i <= nbins; ++i) {
-      sqm.push_back((h->GetBinContent(i) - f->Eval(h->GetBinCenter(i))) *
-                    (h->GetBinContent(i) - f->Eval(h->GetBinCenter(i))));
+    for (int i = 1; i <= nbins; ++i) {
+      double y_h = h->GetBinContent(i);
+      double y_f = f->Eval(h->GetBinCenter(i));
+      double d = y_h - y_f;
+      sqm.push_back(d * d);
     }
 
-    double sum = std::accumulate(sqm.begin(), sqm.end(), 0.0);
+    double sum = std::accumulate(sqm.begin(), sqm.end(), 0.);
     double dev = std::sqrt(sum / nbins);
     return dev;
   }
@@ -74,7 +76,8 @@ class Function {
 };
 
 void prima_prova() {
-  static Function myfun;  // serve per evitare che venga distrutta alla fine della funzione
+  static Function
+      myfun;  // serve per evitare che venga distrutta alla fine della funzione
   myfun.Draw();
   myfun.c->Update();
   TH1D* h = myfun.GH(1000000, 100);
@@ -94,7 +97,7 @@ void prima_prova() {
   myfun.f->SetLineColor(kRed);
   myfun.f->Draw("SAME");
   myfun.c->Update();
-  std::cout << "Deviazione standard quadratica media: "
+  std::cout << "Deviazione standard: "
             << myfun.ssqm(h, myfun.f) << std::endl;
 }
 
