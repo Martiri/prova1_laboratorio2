@@ -46,9 +46,11 @@ public:
 
   TH1D *GH(int N, int nbins)
   {
-    TH1D *h = new TH1D("h", "Distribuzione generata", nbins, 0., 4.);
+    // Creiamo un nome unico per ogni istogramma
+    static int counter = 0;
+    std::string histName = "h_" + std::to_string(counter++);
 
-    // Use TF1::GetRandom to draw x distributed according to f(x)
+    TH1D *h = new TH1D(histName.c_str(), "Distribuzione generata", nbins, 0., 4.);
     for (int i = 0; i < N; ++i)
     {
       double x = f->GetRandom();
@@ -112,31 +114,77 @@ void prima_prova()
             << myfun.ssqm(h, myfun.f) << std::endl;
 }
 
-void rigenerazione(int M = 100, int N = 1000000, int nbins = 100)
+void rigenerazione(int M, int N, int nbins)
 {
   static Function myfun;
   double xmin{0.};
   double xmax{4.};
-  std::vector<std::vector<double>> all_counts(N, std::vector<double>(nbins, 0.));
+  std::vector<std::vector<double>> all_counts(M, std::vector<double>(nbins, 0.));
   for (int j = 0; j < M; ++j)
   {
     TH1D *h = myfun.GH(N, nbins);
-    for (int i = 0; i <= nbins; ++i)
+    for (int i = 1; i <= nbins; ++i)
     {
-      all_counts[j][i - 1] = h->GetBinContent(i);
+      all_counts[j][i - 1] = h->GetBinContent(i) / N;
     }
     delete h;
   }
+  std::vector<double> mean(nbins, 0.);
+  std::vector<double> sigma(nbins, 0.);
+
+  for (int i = 0; i < nbins; ++i)
+  {
+    double sum = 0.;
+    double sumsq = 0.;
+    for (int j = 0; j < M; ++j)
+    {
+      sum += all_counts[j][i];
+      sumsq += all_counts[j][i] * all_counts[j][i];
+    }
+    mean[i] = sum / M;
+    double var = (sumsq - (M * mean[i] * mean[i])) / (M - 1);
+    sigma[i] = std::sqrt(var);
+  }
+  std::vector<double> x(nbins, 0.), ex(nbins, 0.);
+  for (int i = 0; i < nbins; ++i)
+  {
+    x[i] = xmin + (i + 0.5) * (xmax - xmin) / nbins;
+  }
+
+  TGraphErrors *g = new TGraphErrors(nbins, x.data(), mean.data(), ex.data(), sigma.data());
+  g->SetTitle("incertezza di rigenerazione; x; conteggi medi");
+  g->SetMarkerStyle(20);
+  g->SetMarkerColor(kBlue);
+  g->SetLineColor(kBlue);
+
+  double fintegral = myfun.f->Integral(xmin, xmax);
+  double hintegral = std::accumulate(mean.begin(), mean.end(), 0.0);
+  double scale = fintegral / hintegral;
+  for (auto &m : mean)
+    m *= scale;
+  for (auto &s : sigma)
+    s *= scale;
+
+  static TCanvas *c2 = new TCanvas("c2", "Rigenerazione", 800, 600);
+  g->Draw("AP");
+  myfun.f->SetLineColor(kRed);
+  myfun.f->Draw("SAME");
+  c2->Update();
+  double global_dev{0.};
+  for (auto &s : sigma)
+    global_dev += s;
+  global_dev /= nbins;
+  std::cout << "Deviazione standard media per bin: " << global_dev << std::endl;
 }
 
-  int main(int argc, char **argv)
-  {
-    TApplication app("app", &argc, argv);
-    std::cout << "Avvio myMacro()..." << std::endl;
+int main(int argc, char **argv)
+{
+  TApplication app("app", &argc, argv);
+  std::cout << "Avvio myMacro()..." << std::endl;
 
-    prima_prova();
-
-    std::cout << "myMacro() terminata." << std::endl;
-    app.Run();
-    return 0;
-  }
+  prima_prova();
+  rigenerazione(100, 1000000, 100);
+  std::cout << "myMacro() terminata." << std::endl;
+  app.Run();
+  return 0;
+}
