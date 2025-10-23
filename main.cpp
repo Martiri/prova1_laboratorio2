@@ -50,7 +50,8 @@ public:
     static int counter = 0;
     std::string histName = "h_" + std::to_string(counter++);
 
-    TH1D *h = new TH1D(histName.c_str(), "Distribuzione generata", nbins, 0., 4.);
+  TH1D *h = new TH1D(histName.c_str(), "Distribuzione generata", nbins, 0., 4.);
+  h->SetDirectory(nullptr);
     for (int i = 0; i < N; ++i)
     {
       double x = f->GetRandom();
@@ -176,6 +177,59 @@ void rigenerazione(int M, int N, int nbins)
   global_dev /= nbins;
   std::cout << "Deviazione standard media per bin: " << global_dev << std::endl;
 }
+void bin_smearing(int M, int nbins)
+{
+  static Function myfun;
+  std::vector<std::vector<double>> bin_values(nbins);
+  TRandom3 rng;
+  for (int m = 0; m < M; ++m)
+  {
+  TH1D *h = new TH1D(("h_" + std::to_string(m)).c_str(), "Smeared histogram", nbins, 0., 4.);
+  h->SetDirectory(nullptr);
+
+    for (int i = 1; i <= nbins; ++i)
+    {
+      double x = h->GetBinCenter(i);
+      double y = myfun.f->Eval(x);
+      double smeared = rng.Gaus(y, std::sqrt(y));
+      h->SetBinContent(i, smeared);
+      bin_values[i - 1].push_back(smeared);
+    }
+    delete h;
+  }
+  std::vector<double> mean(nbins);
+  std::vector<double> sigma(nbins);
+  std::vector<double> x(nbins);
+  std::vector<double> ex(nbins, 0);
+  for (int i = 0; i < nbins; ++i)
+  {
+
+    x[i] = (i + 0.5) * 4.0 / nbins;
+
+    double sum = std::accumulate(bin_values[i].begin(), bin_values[i].end(), 0.0);
+    mean[i] = sum / M;
+    double sum_sq = std::accumulate(bin_values[i].begin(), bin_values[i].end(), 0.0, [mean, i, M](double acc, double value)
+                                    { return acc + (value - mean[i]) * (value - mean[i]); });
+    sigma[i] = std::sqrt(sum_sq / (M - 1));
+  }
+  static TCanvas *c3 = new TCanvas("c_smearing", "Bin Smearing Analysis", 800, 600);
+  TGraphErrors *g = new TGraphErrors(nbins, x.data(), mean.data(), ex.data(), sigma.data());
+  g->SetTitle("Bin Smearing Analysis;x;y");
+  g->SetMarkerStyle(20);
+  g->SetMarkerColor(kBlue);
+  g->SetLineColor(kBlue);
+
+  g->Draw("AP");
+  myfun.f->SetLineColor(kRed);
+  myfun.f->Draw("SAME");
+  c3->Update();
+  double total_sigma{0.};
+  for (auto& s : sigma) {
+      total_sigma += s;
+  }
+  double mean_sigma = total_sigma / nbins;
+  std::cout << "Deviazione standard media per bin: " << mean_sigma << std::endl;
+}
 
 int main(int argc, char **argv)
 {
@@ -184,6 +238,7 @@ int main(int argc, char **argv)
 
   prima_prova();
   rigenerazione(100, 1000000, 100);
+  bin_smearing(100, 100);
   std::cout << "myMacro() terminata." << std::endl;
   app.Run();
   return 0;
