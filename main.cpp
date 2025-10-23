@@ -19,43 +19,51 @@
 /*TRandom3* rng = new TRandom3();
 rng->SetSeed();
 */
-class Function {
- public:
+class Function
+{
+public:
   double k{5.2};
   double phi{1.8};
   double b{0.2};
 
-  TF1* f;
-  TCanvas* c;
+  TF1 *f;
+  TCanvas *c;
 
-  Function() {
+  Function()
+  {
     f = new TF1("f", "pow(cos([0]*x + [1]),2) + [2]", 0., 4.);
     f->SetParNames("k", "phi", "b");
     f->SetParameters(k, phi, b);
     c = nullptr;
   }
 
-  ~Function() {
+  ~Function()
+  {
     delete f;
-    if (c) delete c;
+    if (c)
+      delete c;
   }
 
-  TH1D* GH(int N, int nbins) {
-    TH1D* h = new TH1D("h", "Distribuzione generata", nbins, 0., 4.);
+  TH1D *GH(int N, int nbins)
+  {
+    TH1D *h = new TH1D("h", "Distribuzione generata", nbins, 0., 4.);
 
     // Use TF1::GetRandom to draw x distributed according to f(x)
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < N; ++i)
+    {
       double x = f->GetRandom();
       h->Fill(x);
     }
 
     return h;
   }
-  double ssqm(TH1D* h, TF1* f) {  // mi fa la deviazione standard
+  double ssqm(TH1D *h, TF1 *f)
+  { // mi fa la deviazione standard
     int nbins = h->GetNbinsX();
     std::vector<double> sqm;
     sqm.reserve(nbins);
-    for (int i = 1; i <= nbins; ++i) {
+    for (int i = 1; i <= nbins; ++i)
+    {
       double y_h = h->GetBinContent(i);
       double y_f = f->Eval(h->GetBinCenter(i));
       double d = y_h - y_f;
@@ -67,7 +75,8 @@ class Function {
     return dev;
   }
 
-  void Draw() {
+  void Draw()
+  {
     c = new TCanvas("c", "Grafico cos^2(kx+phi)+b", 800, 600);
     f->SetTitle("f(x) = cos^{2}(k x + #varphi) + b; x; f(x)");
     f->Draw();
@@ -75,12 +84,13 @@ class Function {
   }
 };
 
-void prima_prova() {
+void prima_prova()
+{
   static Function
-      myfun;  // serve per evitare che venga distrutta alla fine della funzione
+      myfun; // serve per evitare che venga distrutta alla fine della funzione
   myfun.Draw();
   myfun.c->Update();
-  TH1D* h = myfun.GH(1000000, 100);
+  TH1D *h = myfun.GH(1000000, 100);
   h->SetLineColor(kBlue);
 
   // Normalizza l'istogramma all'area della funzione
@@ -88,7 +98,8 @@ void prima_prova() {
   double x_max = h->GetXaxis()->GetXmax();
   double fIntegral = myfun.f->Integral(x_min, x_max);
   double hIntegral = h->Integral("width");
-  if (hIntegral > 0.0 && fIntegral > 0.0) {
+  if (hIntegral > 0.0 && fIntegral > 0.0)
+  {
     double scale = fIntegral / hIntegral;
     h->Scale(scale);
   }
@@ -101,13 +112,31 @@ void prima_prova() {
             << myfun.ssqm(h, myfun.f) << std::endl;
 }
 
-int main(int argc, char** argv) {
-  TApplication app("app", &argc, argv);
-  std::cout << "Avvio myMacro()..." << std::endl;
-
-  prima_prova();
-
-  std::cout << "myMacro() terminata." << std::endl;
-  app.Run();
-  return 0;
+void rigenerazione(int M = 100, int N = 1000000, int nbins = 100)
+{
+  static Function myfun;
+  double xmin{0.};
+  double xmax{4.};
+  std::vector<std::vector<double>> all_counts(N, std::vector<double>(nbins, 0.));
+  for (int j = 0; j < M; ++j)
+  {
+    TH1D *h = myfun.GH(N, nbins);
+    for (int i = 0; i <= nbins; ++i)
+    {
+      all_counts[j][i - 1] = h->GetBinContent(i);
+    }
+    delete h;
+  }
 }
+
+  int main(int argc, char **argv)
+  {
+    TApplication app("app", &argc, argv);
+    std::cout << "Avvio myMacro()..." << std::endl;
+
+    prima_prova();
+
+    std::cout << "myMacro() terminata." << std::endl;
+    app.Run();
+    return 0;
+  }
