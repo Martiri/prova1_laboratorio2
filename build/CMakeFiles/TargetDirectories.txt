@@ -1,0 +1,4 @@
+/home/martiri/prova1_laboratorio2/build/CMakeFiles/prima_prova.dir
+/home/martiri/prova1_laboratorio2/build/CMakeFiles/run.dir
+/home/martiri/prova1_laboratorio2/build/CMakeFiles/edit_cache.dir
+/home/martiri/prova1_laboratorio2/build/CMakeFiles/rebuild_cache.dir
