@@ -1,22 +1,7 @@
-#include <TApplication.h>
-#include <TCanvas.h>
-#include <TF1.h>
-#include <TFile.h>
-#include <TGraphErrors.h>
-#include <TH1D.h>
-#include <TLegend.h>
-#include <TRandom3.h>
-#include <TStyle.h>
 #include "metod.hpp"
 #include "funzioni.cpp"
 
-#include <cmath>
-#include <iostream>
-#include <numeric>
-#include <random>
-#include <sstream>
-#include <string>
-#include <vector>
+
 
 
 int main(int argc, char **argv)
