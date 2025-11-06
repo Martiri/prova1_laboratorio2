@@ -27,6 +27,7 @@ int main(int argc, char **argv)
   gf::prima_prova();
   gf::rigenerazione(100, 1000000, 100);
   gf::bin_smearing(100, 100);
+  gf::propagazione_parametri(100, 100);
   std::cout << "myMacro() terminata." << std::endl;
   app.Run();
   return 0;

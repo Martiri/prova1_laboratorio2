@@ -201,5 +201,59 @@ namespace gf {
         double mean_sigma = total_sigma / nbins;
         std::cout << "Deviazione standard media per bin: " << mean_sigma << std::endl;
     }
+    void propagazione_parametri(int M, int nbins) {
+        static Function myfun;
+        double xmin = 0.;
+        double xmax = 4.;
+        double k0 = myfun.k();
+        double phi0 = myfun.phi();
+        double b0 = myfun.b();
+
+        double sigma_k = 0.02 * std::abs(k0);
+        double sigma_phi = 0.05 * std::abs(phi0);
+        double sigma_b = 0.01 * std::abs(b0);
+
+        TRandom3 rng;
+        std::vector<std::vector<double>> bin_values(nbins);
+        for (int m = 0; m < M; ++m) {
+            double k_s = rng.Gaus(k0, sigma_k);
+            double phi_s = rng.Gaus(phi0, sigma_phi);
+            double b_s = rng.Gaus(b0, sigma_b);
+            std::string name = "f_" + std::to_string(m);
+            TF1 *f = new TF1(name.c_str(), "pow(cos([0]*x + [1]),2) + [2]", xmin, xmax);
+            f->SetParameters(k_s, phi_s, b_s);
+            for (int i = 0; i < nbins; ++i) {
+                double x = xmin + (i + 0.5) * (xmax - xmin) / nbins;
+                double y = f->Eval(x);
+                bin_values[i].push_back(y);
+            }
+            delete f;
+        }
+
+        std::vector<double> mean(nbins), sigma(nbins), x(nbins), ex(nbins, 0.0);
+        for (int i = 0; i < nbins; ++i) {
+            x[i] = xmin + (i + 0.5) * (xmax - xmin) / nbins;
+            double sum = 0.0;
+            for (double v : bin_values[i]) sum += v;
+            mean[i] = sum / M;
+            double sumsq = 0.0;
+            for (double v : bin_values[i]) sumsq += (v - mean[i]) * (v - mean[i]);
+            sigma[i] = std::sqrt(sumsq / (M - 1));
+        }
+
+        static TCanvas *c4 = new TCanvas("c4", "ROcco", 900, 600);
+        TGraphErrors *g = new TGraphErrors(nbins, x.data(), mean.data(), ex.data(), sigma.data());
+        g->SetTitle("ROcco; x; f(x)");
+        g->SetMarkerStyle(20);
+        g->SetMarkerColor(kBlue);
+        g->SetLineColor(kBlue);
+        g->Draw("AP");
+        myfun.f->SetLineColor(kRed);
+        myfun.f->Draw("SAME");
+        c4->Update();
+        double total_sigma = 0.0;
+        for (auto &s : sigma) total_sigma += s;
+        std::cout << "Param prop (3.2): deviazione standard media per bin = " << total_sigma / nbins << std::endl;
+    }
 }
 
