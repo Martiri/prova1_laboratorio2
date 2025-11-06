@@ -40,6 +40,12 @@ public:
   void Draw();
 
 };
+
+void prima_prova();
+void rigenerazione(int M, int N, int nbins);
+void bin_smearing(int M, int nbins);
+void propagazione_parametri(int M, int nbins);
+void fit_distribution();
 } //namespace gf
 
 #endif

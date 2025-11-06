@@ -50,8 +50,6 @@ build CMakeFiles/prima_prova.dir/RelWithDebInfo/main.cpp.o: CXX_COMPILER__prima_
   INCLUDES = -I/home/martiri/root/include
   OBJECT_DIR = CMakeFiles/prima_prova.dir/RelWithDebInfo
   OBJECT_FILE_DIR = CMakeFiles/prima_prova.dir/RelWithDebInfo
-  TARGET_COMPILE_PDB = CMakeFiles/prima_prova.dir/RelWithDebInfo/
-  TARGET_PDB = RelWithDebInfo/prima_prova.pdb
 
 
 # =============================================================================
@@ -67,9 +65,8 @@ build RelWithDebInfo/prima_prova: CXX_EXECUTABLE_LINKER__prima_prova_RelWithDebI
   OBJECT_DIR = CMakeFiles/prima_prova.dir/RelWithDebInfo
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/prima_prova.dir/RelWithDebInfo/
   TARGET_FILE = RelWithDebInfo/prima_prova
-  TARGET_PDB = RelWithDebInfo/prima_prova.pdb
+  TARGET_PDB = prima_prova.dbg
 
 
 #############################################

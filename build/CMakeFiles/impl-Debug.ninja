@@ -50,8 +50,6 @@ build CMakeFiles/prima_prova.dir/Debug/main.cpp.o: CXX_COMPILER__prima_prova_uns
   INCLUDES = -I/home/martiri/root/include
   OBJECT_DIR = CMakeFiles/prima_prova.dir/Debug
   OBJECT_FILE_DIR = CMakeFiles/prima_prova.dir/Debug
-  TARGET_COMPILE_PDB = CMakeFiles/prima_prova.dir/Debug/
-  TARGET_PDB = Debug/prima_prova.pdb
 
 
 # =============================================================================
@@ -67,9 +65,8 @@ build Debug/prima_prova: CXX_EXECUTABLE_LINKER__prima_prova_Debug CMakeFiles/pri
   OBJECT_DIR = CMakeFiles/prima_prova.dir/Debug
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/prima_prova.dir/Debug/
   TARGET_FILE = Debug/prima_prova
-  TARGET_PDB = Debug/prima_prova.pdb
+  TARGET_PDB = prima_prova.dbg
 
 
 #############################################

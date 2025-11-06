@@ -50,8 +50,6 @@ build CMakeFiles/prima_prova.dir/Release/main.cpp.o: CXX_COMPILER__prima_prova_u
   INCLUDES = -I/home/martiri/root/include
   OBJECT_DIR = CMakeFiles/prima_prova.dir/Release
   OBJECT_FILE_DIR = CMakeFiles/prima_prova.dir/Release
-  TARGET_COMPILE_PDB = CMakeFiles/prima_prova.dir/Release/
-  TARGET_PDB = Release/prima_prova.pdb
 
 
 # =============================================================================
@@ -67,9 +65,8 @@ build Release/prima_prova: CXX_EXECUTABLE_LINKER__prima_prova_Release CMakeFiles
   OBJECT_DIR = CMakeFiles/prima_prova.dir/Release
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/prima_prova.dir/Release/
   TARGET_FILE = Release/prima_prova
-  TARGET_PDB = Release/prima_prova.pdb
+  TARGET_PDB = prima_prova.dbg
 
 
 #############################################
